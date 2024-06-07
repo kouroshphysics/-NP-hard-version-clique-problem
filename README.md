@@ -1,71 +1,285 @@
-Clique Problem using Quantum Annealing
-This repository contains a Python implementation for solving the NP-hard version of the clique problem using D-Wave's quantum annealer. The formulation is based on the Ising model and Quadratic Unconstrained Binary Optimization (QUBO) as described in Section 2.3 of the paper Ising formulations of many NP problems.
+NP-hard Version of the Clique Problem Using Quantum Annealing
+Overview
+This repository contains a Python implementation for solving the Clique Decision Problem and finding the largest clique in a given graph using quantum annealing on the D-Wave quantum computer. A clique in a graph is a subset of vertices such that every two distinct vertices are adjacent. Finding the largest clique is an NP-hard problem, involving identifying the maximum complete subgraph within a given graph.
 
 Problem Description
-The clique problem is a classical NP-hard problem in graph theory. Given a graph, the objective is to find the largest clique (a subset of vertices, all adjacent to each other).
+The Clique Decision Problem
+The Clique Decision Problem is a fundamental problem in graph theory and computer science. Given an undirected graph 
+𝐺
+=
+(
+𝑉
+,
+𝐸
+)
+G=(V,E) and an integer 
+𝑘
+k, the problem is to determine whether there exists a subset of 
+𝑘
+k vertices that form a complete subgraph (clique) in 
+𝐺
+G.
 
-Implementation Details
-The implementation uses the D-Wave quantum annealer to solve the problem by formulating it as a QUBO problem. The following steps are included:
+Largest Clique Problem
+A clique in an undirected graph 
+𝐺
+=
+(
+𝑉
+,
+𝐸
+)
+G=(V,E) is a subset of vertices such that every two distinct vertices are connected by an edge. The largest clique is the clique of maximum size in the graph.
 
-Adjacency Matrix: Define the graph using an adjacency matrix J.
-QUBO Formulation: Construct the QUBO matrix Q that represents the clique problem constraints and objective.
-Quantum Annealing: Use D-Wave's EmbeddingComposite and DWaveSampler to find the solution.
-Visualization: Plot the graph and highlight the largest clique.
-Requirements
-Python 3.x
-D-Wave Ocean SDK
-NumPy
-NetworkX
-Matplotlib
-You can install the required packages using:
+Quantum Annealing Approach
+Quantum annealing is a method used to find the global minimum of a given objective function over a set of candidate solutions, particularly useful for solving combinatorial optimization problems like the largest clique problem.
 
-bash
-Copy code
-pip install dwave-ocean-sdk numpy networkx matplotlib
-Usage
-Define the Problem
-Edit the adjacency matrix J and the desired clique size k in the code:
+Formulation as a QUBO
+The problem can be formulated as a Quadratic Unconstrained Binary Optimization (QUBO) problem, expressed through a Hamiltonian composed of three parts:
 
-python
-Copy code
-# Example graph adjacency matrix J 
-J = np.array([
-    [0, 0, 1, 0,1,0],
-    [0, 0, 1, 1,1,1],
-    [1, 1, 0, 1,1,0],
-    [0, 1, 1, 0,1,0],
-    [1,1,1,1,0,0],
-    [0,1,0,0,0,0]
-])
+Hamiltonian 
+𝐻
+𝐴
+H 
+A
+​
+ : Ensures the sum of the binary variables reflects the size constraints of the clique.
+Hamiltonian 
+𝐻
+𝐵
+H 
+B
+​
+ : Ensures the selected vertices form a complete subgraph.
+Hamiltonian 
+𝐻
+𝐶
+H 
+C
+​
+ : Maximizes the number of vertices included in the clique.
+These Hamiltonians are combined to form the QUBO matrix 
+𝑄
+Q, where the goal is to minimize the energy to find the largest clique.
 
-# Desired clique size
-k = 4
-Run the Code
-Ensure you have set your D-Wave API token and solver in the environment variables or directly in the script. Then, execute the script:
+Hamiltonian Equations
+Hamiltonian 
+𝐻
+𝐴
+H 
+A
+​
+ :
 
-bash
-Copy code
-python clique_problem.py
-Output
-The script will output the nodes that form the largest clique and visualize the graph highlighting the clique.
+𝐻
+𝐴
+=
+𝐴
+(
+1
+−
+∑
+𝑖
+=
+2
+𝑁
+𝑦
+𝑖
+)
+2
++
+𝐴
+(
+∑
+𝑖
+=
+2
+𝑁
+𝑖
+𝑦
+𝑖
+−
+∑
+𝑣
+𝑥
+𝑣
+)
+2
+H 
+A
+​
+ =A(1− 
+i=2
+∑
+N
+​
+ y 
+i
+​
+ ) 
+2
+ +A( 
+i=2
+∑
+N
+​
+ iy 
+i
+​
+ − 
+v
+∑
+​
+ x 
+v
+​
+ ) 
+2
+ 
+where 
+𝑦
+𝑖
+y 
+i
+​
+  are auxiliary binary variables representing the possible sizes of the clique, and 
+𝑥
+𝑣
+x 
+v
+​
+  are binary variables indicating whether vertex 
+𝑣
+v is included in the clique.
 
-Example
-Given the adjacency matrix:
+Hamiltonian 
+𝐻
+𝐵
+H 
+B
+​
+ :
 
-csharp
-Copy code
-J = [
-    [0, 0, 1, 0, 1, 0],
-    [0, 0, 1, 1, 1, 1],
-    [1, 1, 0, 1, 1, 0],
-    [0, 1, 1, 0, 1, 0],
-    [1, 1, 1, 1, 0, 0],
-    [0, 1, 0, 0, 0, 0]
+𝐻
+𝐵
+=
+𝐵
+[
+1
+2
+(
+∑
+𝑖
+=
+2
+𝑁
+𝑖
+𝑦
+𝑖
+)
+(
+−
+1
++
+∑
+𝑖
+=
+2
+𝑁
+𝑖
+𝑦
+𝑖
+)
+−
+∑
+(
+𝑢
+,
+𝑣
+)
+∈
+𝐸
+𝑥
+𝑢
+𝑥
+𝑣
 ]
-and a desired clique size of k = 4, the script will find the largest clique and output:
+H 
+B
+​
+ =B 
+​
+  
+2
+1
+​
+ ( 
+i=2
+∑
+N
+​
+ iy 
+i
+​
+ )(−1+ 
+i=2
+∑
+N
+​
+ iy 
+i
+​
+ )− 
+(u,v)∈E
+∑
+​
+ x 
+u
+​
+ x 
+v
+​
+  
+​
+ 
+where 
+(
+𝑢
+,
+𝑣
+)
+∈
+𝐸
+(u,v)∈E represents the edges in the graph.
 
-less
-Copy code
-Nodes in the clique: [list_of_nodes]
-A graph visualization will be displayed with the clique nodes highlighted in orange.
+Hamiltonian 
+𝐻
+𝐶
+H 
+C
+​
+ :
 
+𝐻
+𝐶
+=
+−
+𝐶
+∑
+𝑣
+𝑥
+𝑣
+H 
+C
+​
+ =−C 
+v
+∑
+​
+ x 
+v
+​
+ 
+Files
+clique_problem.py: Contains the implementation for solving the NP-hard version of the clique problem using quantum annealing.
+graph_plot.py: Contains the implementation for visualizing the graph and the largest clique found.
