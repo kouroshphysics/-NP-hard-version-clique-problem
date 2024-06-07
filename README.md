@@ -141,4 +141,3 @@ nx.draw_networkx_edges(G, pos, edgelist=clique_edges, edge_color='orange', width
 
 plt.title("Graph with Largest Clique Highlighted with Orange")
 plt.show()
-
